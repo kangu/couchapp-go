@@ -13,21 +13,52 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Printf("%v", parameters)
 
-	folderPath := "./sample_couchapp" // Replace with the path to your folder
-	result, err := folderToJSON(folderPath)
+	// generate design doc from folder
+	designDoc, err := folderToJSON(parameters.source)
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		fmt.Println("Error parsing folder:", err)
+		os.Exit(1)
+	}
+	docId, idExists := designDoc["_id"]
+
+	if !idExists {
+		fmt.Println("document _id needs to be present")
+		os.Exit(1)
 	}
 
-	// Convert the result to a JSON string
-	jsonString, err := json.MarshalIndent(result, "", "    ")
+	docIdStr, ok := docId.(string)
+	if !ok {
+		fmt.Println("document _id needs to be present")
+		os.Exit(1)
+	}
+
+	// should read revision of document, if available
+	revision, err := getDocRevision(parameters.host, parameters.db, docIdStr, parameters.base64auth)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	fmt.Printf("Revision:%s\n", revision)
+	if revision != "" {
+		designDoc["_rev"] = revision
+	}
+
+	// Convert the designDoc to a JSON string
+	jsonString, err := json.MarshalIndent(designDoc, "", "    ")
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		os.Exit(1)
 	}
 
 	fmt.Println(string(jsonString))
+
+	// push document
+	uploadStatus, err := postDoc(parameters.host, parameters.db, jsonString, parameters.base64auth)
+	if err != nil {
+		fmt.Println("Error uploading document:", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Result status: %v", uploadStatus)
 }

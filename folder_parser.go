@@ -34,7 +34,11 @@ func folderToJSON(folderPath string) (map[string]interface{}, error) {
 			}
 			// Remove the file extension from the key
 			key := strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))
-			folderJSON[key] = string(content)
+			// Skip files with no name, just extension
+			// like .couchapprc or .DS_Store
+			if key != "" {
+				folderJSON[key] = string(content)
+			}
 		}
 	}
 
