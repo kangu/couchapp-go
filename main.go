@@ -41,6 +41,17 @@ func main() {
 	}
 	fmt.Printf("Revision:%s\n", revision)
 	if revision != "" {
+		// check to see if documents are identical
+		identical, err := checkIdenticalDocs(parameters.host, parameters.db, designDoc, parameters.base64auth)
+		if err != nil {
+			fmt.Println("Error checking if docs are identical", err)
+			os.Exit(1)
+		}
+		if identical {
+			fmt.Println("Identical docs")
+			os.Exit(1)
+		}
+		// otherwise set the existing revision needed for the document update
 		designDoc["_rev"] = revision
 	}
 
