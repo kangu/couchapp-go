@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -43,4 +45,70 @@ func folderToJSON(folderPath string) (map[string]interface{}, error) {
 	}
 
 	return folderJSON, nil
+}
+
+func processFolderToCouch(parameters cliParams) {
+	// generate design doc from folder
+	designDoc, err := folderToJSON(parameters.source)
+	if err != nil {
+		fmt.Println("Error parsing folder:", err)
+		os.Exit(1)
+	}
+	docId, idExists := designDoc["_id"]
+
+	if !idExists {
+		fmt.Println("document _id needs to be present")
+		os.Exit(1)
+	}
+
+	docIdStr, ok := docId.(string)
+	if !ok {
+		fmt.Println("document _id needs to be present")
+		os.Exit(1)
+	}
+
+	// should read revision of document, if available
+	revision, err := getDocRevision(parameters.host, parameters.db, docIdStr, parameters.base64auth)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if revision != "" {
+		// check to see if documents are identical
+		identical, err := checkIdenticalDocs(parameters.host, parameters.db, designDoc, parameters.base64auth)
+		if err != nil {
+			fmt.Println("Error checking if docs are identical", err)
+			os.Exit(1)
+		}
+		if identical {
+			fmt.Printf("Identical docs, rev %s not changed\n", revision)
+			return
+		}
+		// otherwise set the existing revision needed for the document update
+		designDoc["_rev"] = revision
+	}
+
+	// Convert the designDoc to a JSON string
+	jsonString, err := json.MarshalIndent(designDoc, "", "    ")
+	if err != nil {
+		fmt.Println("Error:", err)
+		os.Exit(1)
+	}
+	// fmt.Printf("Uploading %v", string(jsonString))
+
+	// push document
+	uploadStatus, err := postDoc(parameters.host, parameters.db, jsonString, parameters.base64auth)
+	if err != nil {
+		fmt.Println("Error uploading document:", err)
+		return
+	}
+
+	if uploadStatus == 201 {
+		// get revision again
+		revision, err = getDocRevision(parameters.host, parameters.db, docIdStr, parameters.base64auth)
+		fmt.Printf("Successful upload, new rev %s\n", revision)
+	} else {
+		fmt.Printf("Upload status status: %v\n", uploadStatus)
+	}
+
 }
