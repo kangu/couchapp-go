@@ -6,7 +6,7 @@ import (
 	"flag"
 )
 
-type cliParams struct {
+type CliParams struct {
 	host       string
 	db         string
 	base64auth string
@@ -14,7 +14,7 @@ type cliParams struct {
 	watch      bool
 }
 
-func readCLIParams() (cliParams, error) {
+func ReadCLIParams() (CliParams, error) {
 	// Get the non-flag arguments (i.e., DB in this case)
 	host := flag.String("host", "http://localhost:5984", "CouchDB host address")
 	db := flag.String("db", "", "Target database")
@@ -24,8 +24,9 @@ func readCLIParams() (cliParams, error) {
 	watch := flag.Bool("watch", false, "Live folder watch")
 	flag.Parse()
 
+	// at least DB parameter needs to be specified
 	if *db == "" {
-		return cliParams{}, errors.New("target db needs to be specified with -db option")
+		return CliParams{}, errors.New("target db needs to be specified with --db option")
 	}
 
 	authHeader := ""
@@ -33,7 +34,7 @@ func readCLIParams() (cliParams, error) {
 		authHeader = "Basic " + base64.StdEncoding.EncodeToString([]byte(*user+":"+*pass))
 	}
 
-	return cliParams{
+	return CliParams{
 		host:       *host,
 		db:         *db,
 		base64auth: authHeader,

@@ -30,7 +30,7 @@ func watchDirRecursively(watcher *fsnotify.Watcher, dirPath string) error {
 	})
 }
 
-func keepWatchingForChanges(parameters cliParams) {
+func KeepWatchingForChanges(parameters CliParams) {
 	folderPath, err := filepath.Abs(parameters.source)
 	if err != nil {
 		fmt.Println("Error resolving absolute path:", err)
@@ -65,7 +65,7 @@ func keepWatchingForChanges(parameters cliParams) {
 					}
 					timer = time.AfterFunc(debounceDuration, func() {
 						log.Println("Event:", event)
-						processFolderToCouch(parameters)
+						ProcessFolderToCouch(parameters)
 					})
 				}
 			}

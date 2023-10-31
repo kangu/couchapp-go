@@ -47,7 +47,7 @@ func folderToJSON(folderPath string) (map[string]interface{}, error) {
 	return folderJSON, nil
 }
 
-func processFolderToCouch(parameters cliParams) {
+func ProcessFolderToCouch(parameters CliParams) {
 	// generate design doc from folder
 	designDoc, err := folderToJSON(parameters.source)
 	if err != nil {
@@ -57,13 +57,19 @@ func processFolderToCouch(parameters cliParams) {
 	docId, idExists := designDoc["_id"]
 
 	if !idExists {
-		fmt.Println("document _id needs to be present")
+		folderPath, err := filepath.Abs(parameters.source)
+		if err != nil {
+			fmt.Println("Error resolving absolute path:", err)
+			return
+		}
+		fmt.Printf("Couchapp not detected at %s, file named \"_id\" needs to be present\n", folderPath)
+		fmt.Printf("Use --source parameter to specify a different path\n")
 		os.Exit(1)
 	}
 
 	docIdStr, ok := docId.(string)
 	if !ok {
-		fmt.Println("document _id needs to be present")
+		// should never happen, by design what's read from disk is always a string
 		os.Exit(1)
 	}
 
