@@ -36,6 +36,18 @@ func doCouchRequest(url string, method string, auth string, body []byte) (*http.
 }
 
 func getDocRevision(host string, db string, docid string, auth string) (string, error) {
+	// first try to create database
+	// should fail silently if already present
+	respCreation, err := doCouchRequest(fmt.Sprintf("%s/%s", host, db), "PUT", auth, nil)
+	if err != nil {
+		return "", err
+	}
+	defer respCreation.Body.Close()
+	if respCreation.StatusCode == http.StatusUnauthorized {
+		return "", errors.New(fmt.Sprintf("Error setting up db: %s", respCreation.Status))
+	}
+
+	// look for existing doc
 	url := fmt.Sprintf("%s/%s/%s", host, db, docid)
 	resp, err := doCouchRequest(url, "HEAD", auth, nil)
 	if err != nil {
