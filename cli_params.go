@@ -7,15 +7,16 @@ import (
 )
 
 type CliParams struct {
-	host       string
-	db         string
-	base64auth string
-	source     string
-	watch      bool
+	showVersion bool
+	host        string
+	db          string
+	base64auth  string
+	source      string
+	watch       bool
 }
 
 func ReadCLIParams() (CliParams, error) {
-	// Get the non-flag arguments (i.e., DB in this case)
+	showVersion := flag.Bool("v", false, "Print the version number")
 	host := flag.String("host", "http://localhost:5984", "CouchDB host address")
 	db := flag.String("db", "", "Target database")
 	user := flag.String("user", "", "Username")
@@ -23,6 +24,12 @@ func ReadCLIParams() (CliParams, error) {
 	source := flag.String("source", ".", "Source directory")
 	watch := flag.Bool("watch", false, "Live folder watch")
 	flag.Parse()
+
+	if *showVersion {
+		return CliParams{
+			showVersion: true,
+		}, nil
+	}
 
 	// at least DB parameter needs to be specified
 	if *db == "" {

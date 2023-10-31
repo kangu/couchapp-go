@@ -5,11 +5,17 @@ import (
 	"os"
 )
 
+const version = "1.0.0"
+
 func main() {
 	parameters, err := ReadCLIParams()
 	if err != nil {
 		// fmt.Println(err)
 		printUsageInstructions()
+		os.Exit(1)
+	}
+	if parameters.showVersion {
+		fmt.Printf("%s\n", version)
 		os.Exit(1)
 	}
 
