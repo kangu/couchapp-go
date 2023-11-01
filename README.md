@@ -58,6 +58,17 @@ couchapp-go --db=test_db --user=username --pass=password
 - `--password`: (Optional) Password for authentication
 - `--watch`: (Optional) Watch the folder for changes and push to database on file updates
 
+## Tests
+
+You will need to create a test configuration file to provide authentication details for your CouchDB server.
+Create a `tests/config.json` file based on the template from `tests/config_sample.json`.
+
+Once you have that setup, you can execute the tests by running:
+
+```bash
+go test
+```
+
 ## Contributing
 
 If you find any issues or have ideas for improvements, please open an issue or submit a pull request.
