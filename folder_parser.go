@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-// folderToJSON recursively converts a folder structure to a JSON object.
-func folderToJSON(folderPath string) (map[string]interface{}, error) {
+// FolderToJSON recursively converts a folder structure to a JSON object.
+func FolderToJSON(folderPath string) (map[string]interface{}, error) {
 	folderJSON := make(map[string]interface{})
 
 	// Read the contents of the folder
@@ -23,7 +23,7 @@ func folderToJSON(folderPath string) (map[string]interface{}, error) {
 
 		if file.IsDir() {
 			// If it's a subfolder, recursively call folderToJSON
-			subfolderJSON, err := folderToJSON(filePath)
+			subfolderJSON, err := FolderToJSON(filePath)
 			if err != nil {
 				return nil, err
 			}
@@ -49,7 +49,7 @@ func folderToJSON(folderPath string) (map[string]interface{}, error) {
 
 func ProcessFolderToCouch(parameters CliParams) {
 	// generate design doc from folder
-	designDoc, err := folderToJSON(parameters.source)
+	designDoc, err := FolderToJSON(parameters.source)
 	if err != nil {
 		fmt.Println("Error parsing folder:", err)
 		os.Exit(1)
@@ -114,7 +114,7 @@ func ProcessFolderToCouch(parameters CliParams) {
 		revision, err = getDocRevision(parameters.host, parameters.db, docIdStr, parameters.base64auth)
 		fmt.Printf("Successful upload, new rev %s\n", revision)
 	} else {
-		fmt.Printf("Upload status status: %v\n", uploadStatus)
+		fmt.Printf("Upload status error: %v\n", uploadStatus)
 	}
 
 }

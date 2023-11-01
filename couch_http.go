@@ -35,6 +35,14 @@ func doCouchRequest(url string, method string, auth string, body []byte) (*http.
 	return resp, nil
 }
 
+func deleteDatabase(host string, db string, auth string) (bool, error) {
+	resp, err := doCouchRequest(fmt.Sprintf("%s/%s", host, db), "DELETE", auth, nil)
+	if err != nil {
+		return false, err
+	}
+	return resp.StatusCode == 200, nil
+}
+
 func getDocRevision(host string, db string, docid string, auth string) (string, error) {
 	// first try to create database
 	// should fail silently if already present
@@ -91,24 +99,32 @@ func postDoc(host string, db string, doc []byte, auth string) (int, error) {
 	return resp.StatusCode, nil
 }
 
-func checkIdenticalDocs(host string, db string, doc map[string]interface{}, auth string) (bool, error) {
-	url := fmt.Sprintf("%s/%s/%s", host, db, doc["_id"])
+func getDoc(host string, db string, id string, auth string) (map[string]interface{}, error) {
+	var result map[string]interface{}
+	url := fmt.Sprintf("%s/%s/%s", host, db, id)
 	resp, err := doCouchRequest(url, "GET", auth, nil)
 	if err != nil {
-		return false, err
+		return result, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		// Handle the error
-		fmt.Println("Error reading response body:", err)
-		return false, err
+		return result, err
 	}
+	if err = json.Unmarshal(body, &result); err != nil {
+		return result, err
+	}
+	return result, nil
+}
 
-	var obj2 map[string]interface{}
-	if err := json.Unmarshal(body, &obj2); err != nil {
-		fmt.Println("Error unmarshaling existing json doc:", err)
+func checkIdenticalDocs(host string, db string, doc map[string]interface{}, auth string) (bool, error) {
+	idStr, ok := doc["_id"].(string)
+	if !ok {
+		return false, errors.New("doc id should be a string")
+	}
+	obj2, err := getDoc(host, db, idStr, auth)
+	if err != nil {
 		return false, err
 	}
 	// take out the revision as that doesn't need comparing
