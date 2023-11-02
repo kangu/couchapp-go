@@ -36,7 +36,6 @@ git clone https://github.com/kangu/couchapp-go
 cd couchapp-go
 go build -o bin/couchapp-go
 ```
-You might want to use the filename `couchapp-go.exe` if you build on Windows.
 
 ## Usage
 
@@ -57,6 +56,36 @@ couchapp-go --db=test_db --user=username --pass=password
 - `--user`: (Optional) Username for authentication
 - `--password`: (Optional) Password for authentication
 - `--watch`: (Optional) Watch the folder for changes and push to database on file updates
+
+## Folder structure
+
+```
+app_name
+│
+├── _id                     # contain the design doc id, like "_design/sample"
+|
+├── langauge                # usually contains "javascript"
+|
+├── views/                  # View functions
+│   ├── sample/             # View name
+        ├── map.js          # Map function
+        ├── reduce.js       # Reduce function (optional)
+│
+├── updates/                # Update handlers
+│   ├── hello.js            # Update definition
+│
+├── filters/                # Filter functions
+│   ├── my_docs.js          # Filter definition
+│
+├── lists/                  # List functions (deprecated)
+│   ├── my_list.js          # List definition
+│
+├── shows/                  # Show functions (deprecated)
+│   ├── my_show.js          # Show definition
+│
+├── validate_doc_update.js  # Document validation function
+
+```
 
 ## Tests
 
