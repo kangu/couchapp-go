@@ -59,10 +59,10 @@ couchapp-go --db=test_db --user=username --pass=password
 
 ## Folder structure
 
-```
+```bash
 app_name
 │
-├── _id                     # contain the design doc id, like "_design/sample"
+├── _id                     # contains the design doc id, like "_design/sample"
 |
 ├── langauge                # usually contains "javascript"
 |
