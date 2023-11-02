@@ -63,13 +63,13 @@ couchapp-go --db=test_db --user=username --pass=password
 app_name
 │
 ├── _id                     # contains the design doc id, like "_design/sample"
-|
+│
 ├── langauge                # usually contains "javascript"
-|
+│
 ├── views/                  # View functions
 │   ├── sample/             # View name
-        ├── map.js          # Map function
-        ├── reduce.js       # Reduce function (optional)
+│       ├── map.js          # Map function
+│       ├── reduce.js       # Reduce function (optional)
 │
 ├── updates/                # Update handlers
 │   ├── hello.js            # Update definition
@@ -84,7 +84,6 @@ app_name
 │   ├── my_show.js          # Show definition
 │
 ├── validate_doc_update.js  # Document validation function
-
 ```
 
 ## Tests
