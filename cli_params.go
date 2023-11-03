@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"flag"
+	"os"
 )
 
 type CliParams struct {
@@ -16,11 +17,14 @@ type CliParams struct {
 }
 
 func ReadCLIParams() (CliParams, error) {
+	// try to read user and password from environment variables
+	userEnv, passEnv := getAuthenticationFromEnv()
+
 	showVersion := flag.Bool("v", false, "Print the version number")
 	host := flag.String("host", "http://localhost:5984", "CouchDB host address")
 	db := flag.String("db", "", "Target database")
-	user := flag.String("user", "", "Username")
-	pass := flag.String("pass", "", "Password")
+	user := flag.String("user", userEnv, "Username")
+	pass := flag.String("pass", passEnv, "Password")
 	source := flag.String("source", ".", "Source directory")
 	watch := flag.Bool("watch", false, "Live folder watch")
 	flag.Parse()
@@ -48,4 +52,11 @@ func ReadCLIParams() (CliParams, error) {
 		source:     *source,
 		watch:      *watch,
 	}, nil
+}
+
+func getAuthenticationFromEnv() (user string, pass string) {
+	userEnv := os.Getenv("COUCHAPP_GO_USER")
+	passEnv := os.Getenv("COUCHAPP_GO_PASS")
+
+	return userEnv, passEnv
 }

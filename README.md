@@ -57,6 +57,10 @@ couchapp-go --db=test_db --user=username --pass=password
 - `--password`: (Optional) Password for authentication
 - `--watch`: (Optional) Watch the folder for changes and push to database on file updates
 
+## Authentication
+
+If you don't want to fill in the username and password for the CouchDB admin on every command, you can skip them and instead configure two environment variables: `COUCHAPP_GO_USER` and `COUCHAPP_GO_PASS`.
+
 ## Folder structure
 
 ```bash
