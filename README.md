@@ -109,7 +109,7 @@ gets converted to:
   },
   "filters": {
     "my_docs": "function..."
-  }.
+  },
   "lists": {
     "my_list": "function..."
   },
