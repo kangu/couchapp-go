@@ -63,10 +63,12 @@ If you don't want to fill in the username and password for the CouchDB admin on 
 
 ## Folder structure
 
+`couchapp-go` uses a filesystem mapping similar to the standard [Couchapp Filesystem Mapping](https://github.com/couchapp/couchapp/wiki/Complete-Filesystem-to-Design-Doc-Mapping-Example)
+
 ```bash
 app_name
 │
-├── _id                     # contains the design doc id, like "_design/sample"
+├── _id                     # contains the design doc id, like "_design/app_name"
 │
 ├── langauge                # usually contains "javascript"
 │
@@ -88,6 +90,34 @@ app_name
 │   ├── my_show.js          # Show definition
 │
 ├── validate_doc_update.js  # Document validation function
+```
+
+gets converted to:
+
+```json
+{
+  "_id": "_design/app_name",
+  "language": "javascript",
+  "views": {
+    "sample": {
+      "map": "function...",
+      "reduce": "function..."
+    }
+  },
+  "updates": {
+    "hello": "function..."
+  },
+  "filters": {
+    "my_docs": "function..."
+  }.
+  "lists": {
+    "my_list": "function..."
+  },
+  "shows" : {
+    "my_show": "function..."
+  },
+  "validate_doc_update": "function..."
+}
 ```
 
 ## Tests
