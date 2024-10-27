@@ -11,6 +11,17 @@ import (
 	"strconv"
 )
 
+// ViewRow defines a struct to match the "value" objects in the "rows" array
+type ViewRow struct {
+	Key   interface{} `json:"key"`
+	Value interface{} `json:"value"`
+}
+
+// CouchDBViewResponse defines a struct to match the overall JSON structure
+type CouchDBViewResponse struct {
+	Rows []ViewRow `json:"rows"`
+}
+
 // doCouchRequest runs an HTTP request to the couch
 // only used internally by other functions
 func doCouchRequest(url string, method string, auth string, body []byte) (*http.Response, error) {
@@ -102,6 +113,25 @@ func postDoc(host string, db string, doc []byte, auth string) (int, error) {
 func getDoc(host string, db string, id string, auth string) (map[string]interface{}, error) {
 	var result map[string]interface{}
 	url := fmt.Sprintf("%s/%s/%s", host, db, id)
+	resp, err := doCouchRequest(url, "GET", auth, nil)
+	if err != nil {
+		return result, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return result, err
+	}
+	if err = json.Unmarshal(body, &result); err != nil {
+		return result, err
+	}
+	return result, nil
+}
+
+func getView(host string, db string, ddoc string, view string, auth string) (CouchDBViewResponse, error) {
+	var result CouchDBViewResponse
+	url := fmt.Sprintf("%s/%s/_design/%s/_view/%s", host, db, ddoc, view)
 	resp, err := doCouchRequest(url, "GET", auth, nil)
 	if err != nil {
 		return result, err
