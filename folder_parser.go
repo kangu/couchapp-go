@@ -21,6 +21,12 @@ func FolderToJSON(folderPath string) (map[string]interface{}, error) {
 	for _, file := range files {
 		filePath := filepath.Join(folderPath, file.Name())
 
+		// if filename starts with ., just ignore it
+		if strings.HasPrefix(file.Name(), ".") {
+			// fmt.Printf("Ignoring file: %v\n", file.Name())
+			continue
+		}
+
 		if file.IsDir() {
 			// If it's a subfolder, recursively call folderToJSON
 			subfolderJSON, err := FolderToJSON(filePath)
